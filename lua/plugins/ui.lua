@@ -13,6 +13,14 @@ return {
 				},
 			})
 			vim.cmd([[colorscheme onedark]])
+			vim.api.nvim_create_user_command("ToggleTheme", function()
+				local current = vim.g.colors_name
+				local new_theme = (current == "onelight") and "vaporwave" or "onelight"
+
+				vim.cmd.colorscheme(new_theme)
+				print("Switched theme to: " .. new_theme)
+			end, {})
+			vim.keymap.set("n", "<leader>tt", "<cmd>ToggleTheme<CR>", { desc = "Toggle light/vaporwave theme" })
 		end,
 	},
 }
