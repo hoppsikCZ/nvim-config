@@ -13,8 +13,8 @@ return {
 					pcall(vim.treesitter.start)
 
 					-- Enable Treesitter folds
-					vim.wo[0][0].foldexpr = "v:lua.vim.treesitter.foldexpr()"
-					vim.wo[0][0].foldmethod = "expr"
+					-- vim.wo[0][0].foldexpr = "v:lua.vim.treesitter.foldexpr()"
+					-- vim.wo[0][0].foldmethod = "expr"
 
 					-- Enable Treesitter indentation
 					vim.bo[ev.buf].indentexpr = "v:lua.require'nvim-treesitter'.indentexpr()"
@@ -22,7 +22,23 @@ return {
 			})
 		end,
 		config = function()
-			require("nvim-treesitter").install({ "rust", "javascript", "python", "c_sharp", "typescript" })
+			require("nvim-treesitter").install({
+				"rust",
+				"javascript",
+				"python",
+				"c_sharp",
+				"typescript",
+				"gdscript",
+				"gdshader",
+				"godot_resource",
+				"c",
+				"cpp",
+				"zig",
+				"lua",
+				"vim",
+				"vimdoc",
+				"java",
+			})
 		end,
 	},
 	{
@@ -52,7 +68,7 @@ return {
 			-- C-k: Toggle signature help (if signature.enabled = true)
 			--
 			-- See :h blink-cmp-config-keymap for defining your own keymap
-			keymap = { preset = "default" },
+			keymap = { preset = "super-tab" },
 
 			appearance = {
 				-- 'mono' (default) for 'Nerd Font Mono' or 'normal' for 'Nerd Font'
@@ -61,12 +77,26 @@ return {
 			},
 
 			-- (Default) Only show the documentation popup when manually triggered
-			completion = { documentation = { auto_show = false } },
+			completion = {
+				documentation = { auto_show = false },
+				trigger = {
+					-- Don't open the completion menu if we are currently inside a snippet
+					show_in_snippet = false,
+				},
+			},
 
 			-- Default list of enabled providers defined so that you can extend it
 			-- elsewhere in your config, without redefining it, due to `opts_extend`
 			sources = {
-				default = { "lsp", "path", "snippets", "buffer" },
+				default = { "lazydev", "lsp", "path", "snippets", "buffer" },
+				providers = {
+					lazydev = {
+						name = "LazyDev",
+						module = "lazydev.integrations.blink",
+						-- make lazydev completions top priority (see `:h blink.cmp`)
+						score_offset = 100,
+					},
+				},
 			},
 
 			-- (Default) Rust fuzzy matcher for typo resistance and significantly better performance
@@ -96,6 +126,36 @@ return {
 			{ "mason-org/mason.nvim", opts = {} },
 			"neovim/nvim-lspconfig",
 		},
+		config = function()
+			local capabilities = require("blink.cmp").get_lsp_capabilities()
+			local lspconfig = require("lspconfig")
+
+			require("mason-lspconfig").setup({
+				ensure_installed = { "clangd", "zls" },
+				handlers = {
+					-- Automatically attaches and sets up ANY server downloaded via Mason
+					function(server_name)
+						lspconfig[server_name].setup({
+							capabilities = capabilities,
+						})
+					end,
+				},
+			})
+
+			vim.lsp.config("pyright", {
+				capabilities = {
+					window = {
+						workDoneProgress = false,
+					},
+				},
+			})
+
+			vim.lsp.config("gdscript", {
+				capabilities = capabilities,
+			})
+
+			vim.lsp.enable("gdscript")
+		end,
 	},
 	{
 		"mfussenegger/nvim-dap",
@@ -167,6 +227,32 @@ return {
 
 			-- Evaluate variables/expressions (works in normal & visual mode)
 			map({ "n", "v" }, "<leader>de", dapui.eval, { desc = "Debug: Evaluate Expression" })
+		end,
+	},
+	{
+		"folke/lazydev.nvim",
+		ft = "lua", -- only load on lua files
+		opts = {
+			library = {
+				-- See the configuration section for more details
+				-- Load luvit types when the `vim.uv` word is found
+				{ path = "${3rd}/luv/library", words = { "vim%.uv" } },
+			},
+		},
+	},
+	{
+		"nvim-java/nvim-java",
+		config = function()
+			require("java").setup()
+			-- Override jdtls capabilities to silence background progress/diagnostic spam
+			vim.lsp.config("jdtls", {
+				capabilities = {
+					window = {
+						workDoneProgress = false,
+					},
+				},
+			})
+			vim.lsp.enable("jdtls")
 		end,
 	},
 }

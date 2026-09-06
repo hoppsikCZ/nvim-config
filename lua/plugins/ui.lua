@@ -12,7 +12,7 @@ return {
 					terminal_colors = false,
 				},
 			})
-			vim.cmd([[colorscheme onedark]])
+			vim.cmd([[colorscheme vaporwave]])
 			vim.api.nvim_create_user_command("ToggleTheme", function()
 				local current = vim.g.colors_name
 				local new_theme = (current == "onelight") and "vaporwave" or "onelight"

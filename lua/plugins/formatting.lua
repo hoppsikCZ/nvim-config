@@ -11,12 +11,21 @@ return {
 
 			-- 1. Setup conform options and format_on_save logic
 			conform.setup({
+				formatters = {
+					["clang-format"] = {
+						prepend_args = { "--style={BasedOnStyle: LLVM, IndentWidth: 4}" },
+					},
+				},
 				formatters_by_ft = {
 					lua = { "stylua" },
 					python = { "isort", "black" },
 					javascript = { "prettierd", "prettier", stop_after_first = true },
 					typescript = { "prettierd", "prettier", stop_after_first = true },
 					rust = { "rustfmt", lsp_format = "fallback" },
+					c = { "clang-format" },
+					cpp = { "clang-format" },
+					cs = { "csharpier" },
+					zig = { "lsp" },
 				},
 				format_on_save = function(bufnr)
 					if vim.g.disable_autoformat or vim.b[bufnr].disable_autoformat then

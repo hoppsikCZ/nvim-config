@@ -15,4 +15,16 @@ vim.keymap.set({ "n" }, "<A-j>", "<C-w>j")
 vim.keymap.set({ "n" }, "<A-k>", "<C-w>k")
 vim.keymap.set({ "n" }, "<A-l>", "<C-w>l")
 
+vim.keymap.set({ "n", "v" }, "<leader>ca", vim.lsp.buf.code_action, { desc = "LSP Code Actions" })
+vim.keymap.set("n", "<leader>rn", vim.lsp.buf.rename, { desc = "Rename Variable (LSP)" })
+
 vim.keymap.set("n", "<Esc>", "<cmd>nohlsearch<CR>", { desc = "Clear search highlights" })
+
+for i = 1, 9 do
+	vim.keymap.set("n", string.format("<M-%d>", i), function()
+		local bufs = vim.fn.getbufinfo({ buflisted = 1 })
+		if bufs[i] then
+			vim.api.nvim_set_current_buf(bufs[i].bufnr)
+		end
+	end, { desc = string.format("Go to tabline buffer %d", i) })
+end

@@ -35,4 +35,9 @@ return {
 	},
 
 	{ "wakatime/vim-wakatime", lazy = false },
+	{
+		"seblyng/roslyn.nvim",
+		ft = "cs",
+		opts = {},
+	},
 }
